@@ -131,7 +131,7 @@ PostConstruct, PreDestroy, LogEventBroadcaster, LoggingRuntime {
 
     private int flushFrequency = 1;
 
-    private int maxHistoryFiles = 10;
+    private int maxHistoryFiles = 1000;
 
 
     private String gffileHandlerFormatter = "";
