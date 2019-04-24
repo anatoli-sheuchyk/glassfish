@@ -697,43 +697,6 @@ PostConstruct, PreDestroy, LogEventBroadcaster, LoggingRuntime {
      * If "max_history_files" is defined without value, then default that number to be 10;
      * If "max_history_files" is defined with value 0, any number of history files are kept.
      */
-    public void cleanUpHistoryLogFiles() {
-        if (maxHistoryFiles == 0)
-            return;
-        
-        synchronized (rotationLock) {
-            File dir = absoluteFile.getParentFile();
-            if (dir == null)
-                return;
-            File[] fset = dir.listFiles();
-            ArrayList candidates = new ArrayList();
-            for (int i = 0; fset != null && i < fset.length; i++) {
-                if (!LOG_FILE_NAME.equals(fset[i].getName()) && fset[i].isFile()
-                        && fset[i].getName().startsWith(LOG_FILE_NAME)) {
-                    candidates.add(fset[i].getAbsolutePath());
-                }
-            }
-            if (candidates.size() <= maxHistoryFiles)
-                return;
-            Object[] pathes = candidates.toArray();
-            java.util.Arrays.sort(pathes);
-            try {
-                for (int i = 0; i < pathes.length - maxHistoryFiles; i++) {
-                    File logFile = new File((String) pathes[i]);
-                    boolean delFile = logFile.delete();
-                    if (!delFile) {
-                        throw new IOException("Could not delete log file: "
-                                + logFile.getAbsolutePath());
-                    }
-                }
-            } catch (Exception e) {
-                new ErrorManager().error(
-                        "FATAL ERROR: COULD NOT DELETE LOG FILE.", e,
-                        ErrorManager.GENERIC_FAILURE);
-            }
-        }
-    }
-
 
     /**
      * A Simple rotate method to close the old file and start the new one
@@ -798,8 +761,6 @@ PostConstruct, PreDestroy, LogEventBroadcaster, LoggingRuntime {
                                         LogRotationTimer.getInstance()
                                                 .restartTimer();
                                     }
-
-                                    cleanUpHistoryLogFiles();                                    
                                 }
                             } catch (IOException ix) {
                                 new ErrorManager().error("Error, could not rotate log file", ix, ErrorManager.GENERIC_FAILURE);
